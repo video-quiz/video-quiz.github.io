@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .setup-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .video-container {
+            position: relative;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        #player {
+            width: 100%;
+            max-width: 800px;
+            height: 450px;
+        }
+        
+        .quiz-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #4CAF50;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .quiz-question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .quiz-options {
+            margin: 20px 0;
+        }
+        
+        .quiz-option {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 12px;
+            background: #f0f0f0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: left;
+        }
+        
+        .quiz-option:hover {
+            background: #e0e0e0;
+            border-color: #4CAF50;
+        }
+        
+        .quiz-option.selected {
+            background: #e8f5e8;
+            border-color: #4CAF50;
+        }
+        
+        .quiz-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        
+        .feedback {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .continue-btn {
+            background: #007bff;
+        }
+        
+        .continue-btn:hover {
+            background: #0056b3;
+        }
+        
+        .progress {
+            margin: 20px 0;
+            text-align: center;
+            color: #666;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>YouTube Video Quiz</h1>
+        
+        <div class="setup-section">
+            <div class="form-group">
+                <label for="videoUrl">YouTube Video URL:</label>
+                <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=VIDEO_ID">
+            </div>
+            
+            <div class="form-group">
+                <label for="questionsJson">Questions (JSON format):</label>
+                <textarea id="questionsJson" placeholder='[
+  {
+    "time": 5,
+    "type": "multiple_choice",
+    "question": "What is the main topic discussed?",
+    "options": ["Option A", "Option B", "Option C"],
+    "correct": 0
+  },
+  {
+    "time": 10,
+    "type": "free_form",
+    "question": "Explain what you learned so far:",
+    "answer": "key concepts"
+  }
+]'></textarea>
+            </div>
+            
+            <button onclick="startQuiz()">Start Quiz</button>
+        </div>
+        
+        <div class="video-container hidden" id="videoSection">
+            <div id="player"></div>
+            <div class="progress">
+                <span id="progressText">Question 0 of 0 completed</span>
+            </div>
+            
+            <div class="quiz-section" id="quizSection">
+                <div class="quiz-question" id="quizQuestion"></div>
+                <div class="quiz-options" id="quizOptions"></div>
+                <div class="feedback" id="feedback"></div>
+                <button onclick="submitAnswer()" id="submitBtn">Submit Answer</button>
+                <button onclick="continueVideo()" id="continueBtn" class="continue-btn hidden">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        let player;
+        let questions = [];
+        let currentQuestionIndex = -1;
+        let completedQuestions = new Set();
+        let selectedAnswer = null;
+        let currentQuestion = null;
+        let attempts = 0;
+        let maxAttempts = 3;
+        let questionActive = false;
+
+        function onYouTubeIframeAPIReady() {
+            console.log('YouTube API ready');
+        }
+
+        function startQuiz() {
+            const videoUrl = document.getElementById('videoUrl').value;
+            const questionsText = document.getElementById('questionsJson').value;
+            
+            if (!videoUrl) {
+                alert('Please enter a YouTube video URL');
+                return;
+            }
+            
+            try {
+                questions = JSON.parse(questionsText);
+                if (!Array.isArray(questions) || questions.length === 0) {
+                    throw new Error('Questions must be a non-empty array');
+                }
+            } catch (e) {
+                alert('Please enter valid JSON for questions');
+                return;
+            }
+            
+            const videoId = extractVideoId(videoUrl);
+            if (!videoId) {
+                alert('Please enter a valid YouTube URL');
+                return;
+            }
+            
+            document.querySelector('.setup-section').classList.add('hidden');
+            document.getElementById('videoSection').classList.remove('hidden');
+            
+            initializePlayer(videoId);
+            updateProgress();
+        }
+
+        function extractVideoId(url) {
+            const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        function initializePlayer(videoId) {
+            player = new YT.Player('player', {
+                height: '450',
+                width: '800',
+                videoId: videoId,
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            console.log('Player ready');
+            startTimeTracking();
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                startTimeTracking();
+            }
+        }
+
+        function startTimeTracking() {
+            setInterval(() => {
+                if (player && player.getCurrentTime) {
+                    const currentTime = Math.floor(player.getCurrentTime());
+                    checkForQuestions(currentTime);
+                }
+            }, 1000);
+        }
+
+        function checkForQuestions(currentTime) {
+            if (questionActive) return; // Don't show new questions if one is already active
+            
+            for (let i = 0; i < questions.length; i++) {
+                const question = questions[i];
+                if (question.time === currentTime && !completedQuestions.has(i)) {
+                    showQuestion(i);
+                    break;
+                }
+            }
+        }
+
+        function showQuestion(questionIndex) {
+            if (player) {
+                player.pauseVideo();
+            }
+            
+            questionActive = true;
+            currentQuestionIndex = questionIndex;
+            currentQuestion = questions[questionIndex];
+            attempts = 0;
+            selectedAnswer = null;
+            
+            document.getElementById('quizQuestion').textContent = currentQuestion.question;
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('continueBtn').classList.add('hidden');
+            document.getElementById('submitBtn').classList.remove('hidden');
+            
+            const optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+            
+            if (currentQuestion.type === 'multiple_choice') {
+                currentQuestion.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'quiz-option';
+                    button.textContent = option;
+                    button.setAttribute('data-index', index);
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        selectOption(index);
+                    });
+                    optionsContainer.appendChild(button);
+                });
+            } else if (currentQuestion.type === 'free_form') {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'quiz-input';
+                input.id = 'freeFormAnswer';
+                input.placeholder = 'Enter your answer here...';
+                optionsContainer.appendChild(input);
+            }
+            
+            document.getElementById('quizSection').style.display = 'block';
+        }
+
+        function selectOption(index) {
+            selectedAnswer = index;
+            console.log('Selected answer:', selectedAnswer); // Debug log
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach((option, i) => {
+                if (i === index) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        function submitAnswer() {
+            console.log('Submit clicked, selectedAnswer:', selectedAnswer); // Debug log
+            let userAnswer;
+            let isCorrect = false;
+            
+            if (currentQuestion.type === 'multiple_choice') {
+                if (selectedAnswer === null || selectedAnswer === undefined) {
+                    alert('Please select an answer');
+                    return;
+                }
+                userAnswer = selectedAnswer;
+                isCorrect = userAnswer === currentQuestion.correct;
+            } else if (currentQuestion.type === 'free_form') {
+                const input = document.getElementById('freeFormAnswer');
+                userAnswer = input.value.trim().toLowerCase();
+                if (!userAnswer) {
+                    alert('Please enter an answer');
+                    return;
+                }
+                const correctAnswer = currentQuestion.answer.toLowerCase();
+                isCorrect = userAnswer.includes(correctAnswer) || correctAnswer.includes(userAnswer);
+            }
+            
+            attempts++;
+            const feedback = document.getElementById('feedback');
+            
+            if (isCorrect) {
+                feedback.textContent = 'Correct! Well done!';
+                feedback.className = 'feedback correct';
+                document.getElementById('submitBtn').classList.add('hidden');
+                document.getElementById('continueBtn').classList.remove('hidden');
+                completedQuestions.add(currentQuestionIndex);
+                updateProgress();
+            } else {
+                if (attempts >= maxAttempts) {
+                    feedback.textContent = `Incorrect. The correct answer was: ${
+                        currentQuestion.type === 'multiple_choice' 
+                            ? currentQuestion.options[currentQuestion.correct]
+                            : currentQuestion.answer
+                    }`;
+                    feedback.className = 'feedback incorrect';
+                    document.getElementById('submitBtn').classList.add('hidden');
+                    document.getElementById('continueBtn').classList.remove('hidden');
+                    completedQuestions.add(currentQuestionIndex);
+                    updateProgress();
+                } else {
+                    feedback.textContent = `Incorrect. You have ${maxAttempts - attempts} attempts remaining.`;
+                    feedback.className = 'feedback incorrect';
+                    // Don't reset selection for multiple choice, only for free form
+                    if (currentQuestion.type === 'free_form') {
+                        document.getElementById('freeFormAnswer').value = '';
+                    }
+                }
+            }
+        }
+
+        function continueVideo() {
+            questionActive = false;
+            document.getElementById('quizSection').style.display = 'none';
+            if (player) {
+                player.playVideo();
+            }
+        }
+
+        function updateProgress() {
+            const completed = completedQuestions.size;
+            const total = questions.length;
+            document.getElementById('progressText').textContent = `Question ${completed} of ${total} completed`;
+        }
+    </script>
+</body>
+</html>
