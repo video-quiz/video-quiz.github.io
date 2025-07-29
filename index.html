@@ -523,11 +523,21 @@
         .drag-items {
             flex: 1;
             min-width: 200px;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            transition: all 0.2s ease;
         }
         
         .drop-zones {
             flex: 1;
             min-width: 200px;
+        }
+        
+        .drag-items.drag-over {
+            border-color: #007bff;
+            background-color: #f8f9fa;
         }
         
         .drag-item {
@@ -576,11 +586,25 @@
         }
         
         .drop-zone .dropped-item {
-            background: #d4edda;
-            border: 2px solid #c3e6cb;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
             border-radius: 4px;
             padding: 8px;
             margin-top: 20px;
+            color: #495057;
+            transition: all 0.3s ease;
+        }
+        
+        .drop-zone .dropped-item.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .drop-zone .dropped-item.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
         }
         
         /* Ordering Questions */
@@ -722,42 +746,47 @@
                         type: "multiple_choice",
                         question: "What is JavaScript primarily used for?",
                         options: ["Web development", "Database management", "Operating systems"],
-                        correct: 0
+                        correct: 0,
+                        hint: "Think about what runs in web browsers and makes websites interactive."
                     },
                     {
                         time: 120,
                         type: "free_form",
                         question: "What keyword is used to declare a variable in modern JavaScript?",
                         answer: "let",
-                        hint: "It's one of the newer variable declaration keywords introduced in ES6."
+                        hint: "This keyword was introduced in ES6 and is preferred over 'var' for block-scoped variables."
+                    },
+                    {
+                        time: 180,
+                        type: "drag_drop",
+                        question: "Match each JavaScript concept with its correct description:",
+                        pairs: [
+                            { left: "Variable", right: "Stores data values" },
+                            { left: "Function", right: "Reusable block of code" },
+                            { left: "Array", right: "Ordered list of items" },
+                            { left: "Object", right: "Collection of key-value pairs" }
+                        ],
+                        hint: "Think about the fundamental building blocks of JavaScript programming."
                     },
                     {
                         time: 240,
+                        type: "ordering",
+                        question: "Put these JavaScript execution steps in the correct order:",
+                        items: [
+                            "Parse the code",
+                            "Check for syntax errors", 
+                            "Create execution context",
+                            "Execute the code"
+                        ],
+                        hint: "Consider what happens from the moment JavaScript code is loaded until it runs."
+                    },
+                    {
+                        time: 300,
                         type: "multiple_choice",
                         question: "Which of these is NOT a JavaScript data type?",
                         options: ["String", "Boolean", "Integer", "Number"],
                         correct: 2,
-                        hint: "JavaScript has Number type instead of separate Integer and Float types."
-                    },
-                    {
-                        time: 300,
-                        type: "drag_drop",
-                        question: "Match the JavaScript concepts with their descriptions:",
-                        hint: "Think about what each concept does in JavaScript programming.",
-                        items: ["Variable", "Function", "Array"],
-                        zones: [
-                            { label: "Stores data", correct: "Variable" },
-                            { label: "Executes code", correct: "Function" },
-                            { label: "Holds multiple values", correct: "Array" }
-                        ]
-                    },
-                    {
-                        time: 360,
-                        type: "ordering",
-                        question: "Put these JavaScript execution steps in the correct order:",
-                        hint: "Think about how JavaScript code is processed from start to finish.",
-                        items: ["Parse code", "Create execution context", "Execute code", "Handle errors"],
-                        correct_order: [0, 1, 2, 3]
+                        hint: "JavaScript has a 'Number' type that handles both integers and decimals."
                     }
                 ]
             },
@@ -773,20 +802,47 @@
                         type: "multiple_choice",
                         question: "Python is known for its:",
                         options: ["Complexity", "Readability", "Speed"],
-                        correct: 1
+                        correct: 1,
+                        hint: "Python's design philosophy emphasizes code that is easy to read and understand."
+                    },
+                    {
+                        time: 120,
+                        type: "drag_drop",
+                        question: "Match each Python data type with its example:",
+                        pairs: [
+                            { left: "String", right: "'Hello World'" },
+                            { left: "Integer", right: "42" },
+                            { left: "Float", right: "3.14" },
+                            { left: "Boolean", right: "True" }
+                        ],
+                        hint: "Look at the syntax and quotation marks to identify each data type."
                     },
                     {
                         time: 180,
                         type: "free_form",
                         question: "What function is used to output text in Python?",
-                        answer: "print"
+                        answer: "print",
+                        hint: "This function displays information to the console or terminal."
+                    },
+                    {
+                        time: 240,
+                        type: "ordering",
+                        question: "Put these Python list operations in order of execution:",
+                        items: [
+                            "Create empty list",
+                            "Add elements with append()",
+                            "Access elements by index",
+                            "Modify existing elements"
+                        ],
+                        hint: "Think about the logical sequence of working with a list from creation to modification."
                     },
                     {
                         time: 300,
                         type: "multiple_choice",
                         question: "Python uses which character for indentation?",
                         options: ["Tabs", "Spaces", "Both tabs and spaces"],
-                        correct: 2
+                        correct: 2,
+                        hint: "Python is flexible with indentation, but consistency within a file is important."
                     }
                 ]
             },
@@ -802,20 +858,59 @@
                         type: "multiple_choice",
                         question: "What does HTML stand for?",
                         options: ["Hyper Text Markup Language", "High Tech Modern Language", "Home Tool Markup Language"],
-                        correct: 0
+                        correct: 0,
+                        hint: "HTML is about marking up text with hyperlinks and structure for the web."
+                    },
+                    {
+                        time: 120,
+                        type: "drag_drop",
+                        question: "Match each HTML element with its purpose:",
+                        pairs: [
+                            { left: "<h1>", right: "Main heading" },
+                            { left: "<p>", right: "Paragraph text" },
+                            { left: "<img>", right: "Display image" },
+                            { left: "<a>", right: "Create link" }
+                        ],
+                        hint: "Think about what each tag represents semantically on a webpage."
                     },
                     {
                         time: 180,
                         type: "free_form",
                         question: "Which tag is used to create a paragraph in HTML?",
-                        answer: "p"
+                        answer: "p",
+                        hint: "This tag is short for 'paragraph' and is one of the most basic HTML elements."
                     },
                     {
-                        time: 360,
+                        time: 240,
+                        type: "ordering",
+                        question: "Put these CSS specificity selectors in order from lowest to highest priority:",
+                        items: [
+                            "Element selector (p)",
+                            "Class selector (.class)",
+                            "ID selector (#id)",
+                            "Inline style (style='')"
+                        ],
+                        hint: "Remember: specificity determines which CSS rule wins when multiple rules target the same element."
+                    },
+                    {
+                        time: 300,
                         type: "multiple_choice",
                         question: "CSS is used for:",
                         options: ["Content structure", "Styling and layout", "JavaScript functionality"],
-                        correct: 1
+                        correct: 1,
+                        hint: "CSS stands for Cascading Style Sheets - it's all about how things look and are positioned."
+                    },
+                    {
+                        time: 360,
+                        type: "drag_drop",
+                        question: "Match each CSS property with what it controls:",
+                        pairs: [
+                            { left: "color", right: "Text color" },
+                            { left: "background", right: "Element background" },
+                            { left: "margin", right: "Space outside element" },
+                            { left: "padding", right: "Space inside element" }
+                        ],
+                        hint: "Think about the CSS box model and how properties affect different parts of an element."
                     }
                 ]
             }
@@ -1244,16 +1339,19 @@
             dropZones.className = 'drop-zones';
             dropZones.innerHTML = '<h4>Drop Here:</h4>';
             
-            // Create draggable items
-            currentQuestion.items.forEach((item, index) => {
+            // Create shuffled array of left items for randomization
+            const shuffledPairs = [...currentQuestion.pairs].sort(() => Math.random() - 0.5);
+            
+            // Create draggable items from shuffled pairs
+            shuffledPairs.forEach((pair, index) => {
                 const dragItem = document.createElement('div');
                 dragItem.className = 'drag-item';
-                dragItem.textContent = item;
+                dragItem.textContent = pair.left;
                 dragItem.draggable = true;
-                dragItem.dataset.item = item;
+                dragItem.dataset.item = pair.left;
                 
                 dragItem.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.setData('text/plain', item);
+                    e.dataTransfer.setData('text/plain', pair.left);
                     dragItem.classList.add('dragging');
                 });
                 
@@ -1264,12 +1362,12 @@
                 dragItems.appendChild(dragItem);
             });
             
-            // Create drop zones
-            currentQuestion.zones.forEach((zone, index) => {
+            // Create drop zones from original pairs (maintain order)
+            currentQuestion.pairs.forEach((pair, index) => {
                 const dropZone = document.createElement('div');
                 dropZone.className = 'drop-zone';
                 dropZone.dataset.zone = index;
-                dropZone.innerHTML = `<div class="drop-label">${zone.label}</div>`;
+                dropZone.innerHTML = `<div class="drop-label">${pair.right}</div>`;
                 
                 dropZone.addEventListener('dragover', (e) => {
                     e.preventDefault();
@@ -1285,16 +1383,51 @@
                     const item = e.dataTransfer.getData('text/plain');
                     dropZone.classList.remove('drag-over');
                     
-                    // Remove any existing dropped item
+                    // If there's an existing dropped item, move it back to drag items
                     const existingDropped = dropZone.querySelector('.dropped-item');
                     if (existingDropped) {
+                        const existingItem = existingDropped.textContent;
                         existingDropped.remove();
+                        
+                        // Create new draggable item for the existing item
+                        const returnedItem = document.createElement('div');
+                        returnedItem.className = 'drag-item';
+                        returnedItem.textContent = existingItem;
+                        returnedItem.draggable = true;
+                        returnedItem.dataset.item = existingItem;
+                        
+                        returnedItem.addEventListener('dragstart', (e) => {
+                            e.dataTransfer.setData('text/plain', existingItem);
+                            returnedItem.classList.add('dragging');
+                        });
+                        
+                        returnedItem.addEventListener('dragend', () => {
+                            returnedItem.classList.remove('dragging');
+                        });
+                        
+                        dragItems.appendChild(returnedItem);
                     }
                     
-                    // Add the dropped item
+                    // Add the new dropped item
                     const droppedItem = document.createElement('div');
                     droppedItem.className = 'dropped-item';
                     droppedItem.textContent = item;
+                    droppedItem.draggable = true;
+                    droppedItem.dataset.item = item;
+                    
+                    // Reset visual feedback when item is moved
+                    droppedItem.classList.remove('correct', 'incorrect');
+                    
+                    // Make dropped items draggable back to left side
+                    droppedItem.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', item);
+                        droppedItem.classList.add('dragging');
+                    });
+                    
+                    droppedItem.addEventListener('dragend', () => {
+                        droppedItem.classList.remove('dragging');
+                    });
+                    
                     dropZone.appendChild(droppedItem);
                     
                     // Store the answer
@@ -1302,12 +1435,70 @@
                     
                     // Remove the dragged item from the items area
                     const draggedElement = document.querySelector(`[data-item="${item}"]`);
-                    if (draggedElement) {
+                    if (draggedElement && draggedElement.classList.contains('drag-item')) {
                         draggedElement.remove();
+                    }
+                    
+                    // Reset feedback text when user makes changes after seeing results
+                    const feedback = document.getElementById('feedback');
+                    if (feedback && (feedback.textContent.includes('Correct') || feedback.textContent.includes('Incorrect'))) {
+                        feedback.textContent = '';
+                        feedback.className = 'feedback';
                     }
                 });
                 
                 dropZones.appendChild(dropZone);
+            });
+            
+            // Make drag items area accept dropped items back
+            dragItems.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dragItems.classList.add('drag-over');
+            });
+            
+            dragItems.addEventListener('dragleave', () => {
+                dragItems.classList.remove('drag-over');
+            });
+            
+            dragItems.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const item = e.dataTransfer.getData('text/plain');
+                dragItems.classList.remove('drag-over');
+                
+                // Only accept if it's coming from a drop zone
+                const draggedElement = document.querySelector(`[data-item="${item}"].dragging`);
+                if (draggedElement && draggedElement.classList.contains('dropped-item')) {
+                    // Remove from drop zone and answer tracking
+                    const parentZone = draggedElement.parentElement;
+                    const zoneIndex = parseInt(parentZone.dataset.zone);
+                    dragDropAnswers.delete(zoneIndex);
+                    draggedElement.remove();
+                    
+                    // Create new drag item
+                    const returnedItem = document.createElement('div');
+                    returnedItem.className = 'drag-item';
+                    returnedItem.textContent = item;
+                    returnedItem.draggable = true;
+                    returnedItem.dataset.item = item;
+                    
+                    returnedItem.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', item);
+                        returnedItem.classList.add('dragging');
+                    });
+                    
+                    returnedItem.addEventListener('dragend', () => {
+                        returnedItem.classList.remove('dragging');
+                    });
+                    
+                    dragItems.appendChild(returnedItem);
+                    
+                    // Reset feedback text when user makes changes after seeing results
+                    const feedback = document.getElementById('feedback');
+                    if (feedback && (feedback.textContent.includes('Correct') || feedback.textContent.includes('Incorrect'))) {
+                        feedback.textContent = '';
+                        feedback.className = 'feedback';
+                    }
+                }
             });
             
             container.appendChild(dragItems);
@@ -1405,7 +1596,7 @@
                 case 'free_form':
                     return question.answer;
                 case 'drag_drop':
-                    return question.zones.map(zone => `${zone.correct} → ${zone.label}`).join(', ');
+                    return question.pairs.map(pair => `${pair.left} → ${pair.right}`).join(', ');
                 case 'ordering':
                     return question.correct_order.map(index => question.items[index]).join(' → ');
                 default:
@@ -1435,22 +1626,35 @@
                 const correctAnswer = currentQuestion.answer.toLowerCase();
                 isCorrect = userAnswer.includes(correctAnswer) || correctAnswer.includes(userAnswer);
             } else if (currentQuestion.type === 'drag_drop') {
-                if (dragDropAnswers.size !== currentQuestion.zones.length) {
+                if (dragDropAnswers.size !== currentQuestion.pairs.length) {
                     alert('Please match all items to their zones');
                     return;
                 }
                 
                 userAnswer = Array.from(dragDropAnswers.entries()).map(([zoneIndex, item]) => ({
-                    zone: currentQuestion.zones[zoneIndex].label,
+                    zone: currentQuestion.pairs[zoneIndex].right,
                     item: item
                 }));
                 
-                // Check if all matches are correct
+                // Check if all matches are correct and provide visual feedback
                 isCorrect = true;
                 for (let [zoneIndex, item] of dragDropAnswers) {
-                    if (currentQuestion.zones[zoneIndex].correct !== item) {
+                    const dropZone = document.querySelector(`[data-zone="${zoneIndex}"]`);
+                    const droppedItem = dropZone.querySelector('.dropped-item');
+                    
+                    if (currentQuestion.pairs[zoneIndex].left === item) {
+                        // Correct match
+                        if (droppedItem) {
+                            droppedItem.classList.remove('incorrect');
+                            droppedItem.classList.add('correct');
+                        }
+                    } else {
+                        // Incorrect match
+                        if (droppedItem) {
+                            droppedItem.classList.remove('correct');
+                            droppedItem.classList.add('incorrect');
+                        }
                         isCorrect = false;
-                        break;
                     }
                 }
             } else if (currentQuestion.type === 'ordering') {
@@ -1530,6 +1734,7 @@
                     if (currentQuestion.type === 'free_form') {
                         document.getElementById('freeFormAnswer').value = '';
                     }
+                    // For drag-drop, allow users to modify their answers by keeping visual feedback until next submission
                 }
             }
         }
