@@ -510,6 +510,7 @@
             
             <div class="progress">
                 <span id="progressText">Question 0 of 0 completed</span>
+                <button onclick="resetCurrentQuiz()" style="margin-left: 20px; background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Reset Quiz</button>
             </div>
             
             <div class="quiz-section" id="quizSection">
@@ -655,6 +656,42 @@
         let answeredQuestions = new Map(); // Store question index -> answer details
         let currentVideoData = null;
 
+        // LocalStorage functions
+        function getStorageKey(videoId) {
+            return `video_quiz_${videoId}`;
+        }
+
+        function saveQuizData(videoId) {
+            const data = {
+                completedQuestions: Array.from(completedQuestions),
+                answeredQuestions: Array.from(answeredQuestions.entries())
+            };
+            localStorage.setItem(getStorageKey(videoId), JSON.stringify(data));
+        }
+
+        function loadQuizData(videoId) {
+            const data = localStorage.getItem(getStorageKey(videoId));
+            if (data) {
+                try {
+                    const parsed = JSON.parse(data);
+                    completedQuestions = new Set(parsed.completedQuestions || []);
+                    answeredQuestions = new Map(parsed.answeredQuestions || []);
+                    return true;
+                } catch (e) {
+                    console.error('Error loading quiz data:', e);
+                }
+            }
+            completedQuestions = new Set();
+            answeredQuestions = new Map();
+            return false;
+        }
+
+        function resetQuizData(videoId) {
+            localStorage.removeItem(getStorageKey(videoId));
+            completedQuestions = new Set();
+            answeredQuestions = new Map();
+        }
+
         // Initialize the app
         window.addEventListener('load', function() {
             loadVideoSelection();
@@ -745,20 +782,39 @@
             newUrl.searchParams.delete('video');
             window.history.pushState({}, '', newUrl);
             
-            // Reset state
+            // Reset state (but don't clear data - it's stored per video)
             currentVideoData = null;
             questions = [];
-            completedQuestions.clear();
-            answeredQuestions.clear();
             
             // Show selection, hide other sections
             document.getElementById('videoSelection').classList.remove('hidden');
             document.getElementById('setupSection').classList.add('hidden');
             document.getElementById('videoSection').classList.add('hidden');
             
-            // Stop video if playing
-            if (player && player.stopVideo) {
-                player.stopVideo();
+            // Destroy existing player
+            if (player && player.destroy) {
+                player.destroy();
+                player = null;
+            }
+            
+            // Clear player container
+            document.getElementById('player').innerHTML = '';
+        }
+
+        // Reset current quiz data
+        function resetCurrentQuiz() {
+            if (!currentVideoData) return;
+            
+            if (confirm('Are you sure you want to reset all progress for this video? This cannot be undone.')) {
+                resetQuizData(currentVideoData.id);
+                updateProgress();
+                updateAnsweredQuestionsList();
+                
+                // Reset visual state
+                const markers = document.querySelectorAll('.question-marker');
+                markers.forEach(marker => {
+                    marker.classList.remove('completed', 'active');
+                });
             }
         }
 
@@ -787,15 +843,15 @@
                 return;
             }
             
-            // Reset quiz state
-            completedQuestions.clear();
-            answeredQuestions.clear();
+            // Load existing quiz data for this video
+            loadQuizData(currentVideoData ? currentVideoData.id : videoId);
             
             document.getElementById('setupSection').classList.add('hidden');
             document.getElementById('videoSection').classList.remove('hidden');
             
             initializePlayer(videoId);
             updateProgress();
+            updateAnsweredQuestionsList();
         }
 
         function extractVideoId(url) {
@@ -957,6 +1013,7 @@
                 
                 updateProgress();
                 updateAnsweredQuestionsList();
+                saveQuizData(currentVideoData ? currentVideoData.id : extractVideoId(document.getElementById('videoUrl').value));
             } else {
                 if (attempts >= maxAttempts) {
                     feedback.textContent = `Incorrect. The correct answer was: ${
@@ -985,6 +1042,7 @@
                     
                     updateProgress();
                     updateAnsweredQuestionsList();
+                    saveQuizData(currentVideoData ? currentVideoData.id : extractVideoId(document.getElementById('videoUrl').value));
                 } else {
                     feedback.textContent = `Incorrect. You have ${maxAttempts - attempts} attempts remaining.`;
                     feedback.className = 'feedback incorrect';
