@@ -476,6 +476,160 @@
             color: #333;
             font-style: italic;
         }
+        
+        /* Hint System */
+        .hint-section {
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .hint-button {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .hint-button:hover {
+            background: #138496;
+        }
+        
+        .hint-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .hint-content {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            color: #004085;
+            font-style: italic;
+        }
+        
+        /* Drag and Drop */
+        .drag-drop-container {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .drag-items {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .drop-zones {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .drag-item {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 5px 0;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        
+        .drag-item:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .drag-item.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+        
+        .drop-zone {
+            border: 2px dashed #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 5px 0;
+            min-height: 50px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #007bff;
+            background: #f8f9ff;
+        }
+        
+        .drop-zone .drop-label {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: bold;
+        }
+        
+        .drop-zone .dropped-item {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            border-radius: 4px;
+            padding: 8px;
+            margin-top: 20px;
+        }
+        
+        /* Ordering Questions */
+        .ordering-container {
+            margin: 20px 0;
+        }
+        
+        .ordering-item {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 5px 0;
+            cursor: grab;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+        
+        .ordering-item:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .ordering-item.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+        
+        .ordering-handle {
+            color: #6c757d;
+            font-size: 18px;
+            cursor: grab;
+        }
+        
+        .ordering-number {
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -574,14 +728,36 @@
                         time: 120,
                         type: "free_form",
                         question: "What keyword is used to declare a variable in modern JavaScript?",
-                        answer: "let"
+                        answer: "let",
+                        hint: "It's one of the newer variable declaration keywords introduced in ES6."
                     },
                     {
                         time: 240,
                         type: "multiple_choice",
                         question: "Which of these is NOT a JavaScript data type?",
                         options: ["String", "Boolean", "Integer", "Number"],
-                        correct: 2
+                        correct: 2,
+                        hint: "JavaScript has Number type instead of separate Integer and Float types."
+                    },
+                    {
+                        time: 300,
+                        type: "drag_drop",
+                        question: "Match the JavaScript concepts with their descriptions:",
+                        hint: "Think about what each concept does in JavaScript programming.",
+                        items: ["Variable", "Function", "Array"],
+                        zones: [
+                            { label: "Stores data", correct: "Variable" },
+                            { label: "Executes code", correct: "Function" },
+                            { label: "Holds multiple values", correct: "Array" }
+                        ]
+                    },
+                    {
+                        time: 360,
+                        type: "ordering",
+                        question: "Put these JavaScript execution steps in the correct order:",
+                        hint: "Think about how JavaScript code is processed from start to finish.",
+                        items: ["Parse code", "Create execution context", "Execute code", "Handle errors"],
+                        correct_order: [0, 1, 2, 3]
                     }
                 ]
             },
@@ -708,6 +884,9 @@
         let videoDuration = 0;
         let answeredQuestions = new Map(); // Store question index -> answer details
         let currentVideoData = null;
+        let hintUsed = false;
+        let dragDropAnswers = new Map(); // zone -> item
+        let orderingItems = [];
 
         // LocalStorage functions
         function getStorageKey(videoId) {
@@ -977,6 +1156,9 @@
             currentQuestion = questions[questionIndex];
             attempts = 0;
             selectedAnswer = null;
+            hintUsed = false;
+            dragDropAnswers.clear();
+            orderingItems = [];
             
             document.getElementById('quizQuestion').textContent = currentQuestion.question;
             document.getElementById('feedback').innerHTML = '';
@@ -986,6 +1168,17 @@
             
             const optionsContainer = document.getElementById('quizOptions');
             optionsContainer.innerHTML = '';
+            
+            // Add hint section if question has a hint
+            if (currentQuestion.hint) {
+                const hintSection = document.createElement('div');
+                hintSection.className = 'hint-section';
+                hintSection.innerHTML = `
+                    <button onclick="showHint()" id="hintButton" class="hint-button">💡 Show Hint</button>
+                    <div id="hintContent" class="hint-content" style="display: none;"></div>
+                `;
+                optionsContainer.appendChild(hintSection);
+            }
             
             if (currentQuestion.type === 'multiple_choice') {
                 currentQuestion.options.forEach((option, index) => {
@@ -1006,6 +1199,10 @@
                 input.id = 'freeFormAnswer';
                 input.placeholder = 'Enter your answer here...';
                 optionsContainer.appendChild(input);
+            } else if (currentQuestion.type === 'drag_drop') {
+                createDragDropQuestion();
+            } else if (currentQuestion.type === 'ordering') {
+                createOrderingQuestion();
             }
             
             document.getElementById('quizSection').style.display = 'block';
@@ -1022,6 +1219,198 @@
                     option.classList.remove('selected');
                 }
             });
+        }
+
+        function showHint() {
+            hintUsed = true;
+            const hintContent = document.getElementById('hintContent');
+            const hintButton = document.getElementById('hintButton');
+            
+            hintContent.textContent = currentQuestion.hint;
+            hintContent.style.display = 'block';
+            hintButton.disabled = true;
+            hintButton.textContent = '💡 Hint Used';
+        }
+
+        function createDragDropQuestion() {
+            const container = document.createElement('div');
+            container.className = 'drag-drop-container';
+            
+            const dragItems = document.createElement('div');
+            dragItems.className = 'drag-items';
+            dragItems.innerHTML = '<h4>Items to Match:</h4>';
+            
+            const dropZones = document.createElement('div');
+            dropZones.className = 'drop-zones';
+            dropZones.innerHTML = '<h4>Drop Here:</h4>';
+            
+            // Create draggable items
+            currentQuestion.items.forEach((item, index) => {
+                const dragItem = document.createElement('div');
+                dragItem.className = 'drag-item';
+                dragItem.textContent = item;
+                dragItem.draggable = true;
+                dragItem.dataset.item = item;
+                
+                dragItem.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', item);
+                    dragItem.classList.add('dragging');
+                });
+                
+                dragItem.addEventListener('dragend', () => {
+                    dragItem.classList.remove('dragging');
+                });
+                
+                dragItems.appendChild(dragItem);
+            });
+            
+            // Create drop zones
+            currentQuestion.zones.forEach((zone, index) => {
+                const dropZone = document.createElement('div');
+                dropZone.className = 'drop-zone';
+                dropZone.dataset.zone = index;
+                dropZone.innerHTML = `<div class="drop-label">${zone.label}</div>`;
+                
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('drag-over');
+                });
+                
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.classList.remove('drag-over');
+                });
+                
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const item = e.dataTransfer.getData('text/plain');
+                    dropZone.classList.remove('drag-over');
+                    
+                    // Remove any existing dropped item
+                    const existingDropped = dropZone.querySelector('.dropped-item');
+                    if (existingDropped) {
+                        existingDropped.remove();
+                    }
+                    
+                    // Add the dropped item
+                    const droppedItem = document.createElement('div');
+                    droppedItem.className = 'dropped-item';
+                    droppedItem.textContent = item;
+                    dropZone.appendChild(droppedItem);
+                    
+                    // Store the answer
+                    dragDropAnswers.set(index, item);
+                    
+                    // Remove the dragged item from the items area
+                    const draggedElement = document.querySelector(`[data-item="${item}"]`);
+                    if (draggedElement) {
+                        draggedElement.remove();
+                    }
+                });
+                
+                dropZones.appendChild(dropZone);
+            });
+            
+            container.appendChild(dragItems);
+            container.appendChild(dropZones);
+            document.getElementById('quizOptions').appendChild(container);
+        }
+
+        function createOrderingQuestion() {
+            const container = document.createElement('div');
+            container.className = 'ordering-container';
+            container.innerHTML = '<h4>Drag to reorder:</h4>';
+            
+            // Initialize with shuffled items (or original order)
+            orderingItems = [...currentQuestion.items];
+            
+            orderingItems.forEach((item, index) => {
+                const orderingItem = document.createElement('div');
+                orderingItem.className = 'ordering-item';
+                orderingItem.draggable = true;
+                orderingItem.dataset.index = index;
+                
+                orderingItem.innerHTML = `
+                    <div class="ordering-handle">⋮⋮</div>
+                    <div class="ordering-number">${index + 1}</div>
+                    <div>${item}</div>
+                `;
+                
+                orderingItem.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', index);
+                    orderingItem.classList.add('dragging');
+                });
+                
+                orderingItem.addEventListener('dragend', () => {
+                    orderingItem.classList.remove('dragging');
+                });
+                
+                orderingItem.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+                
+                orderingItem.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                    const targetIndex = parseInt(orderingItem.dataset.index);
+                    
+                    if (draggedIndex !== targetIndex) {
+                        // Swap items
+                        const temp = orderingItems[draggedIndex];
+                        orderingItems[draggedIndex] = orderingItems[targetIndex];
+                        orderingItems[targetIndex] = temp;
+                        
+                        // Refresh the display
+                        refreshOrderingDisplay();
+                    }
+                });
+                
+                container.appendChild(orderingItem);
+            });
+            
+            document.getElementById('quizOptions').appendChild(container);
+        }
+
+        function refreshOrderingDisplay() {
+            const container = document.querySelector('.ordering-container');
+            const items = container.querySelectorAll('.ordering-item');
+            
+            items.forEach((item, index) => {
+                item.dataset.index = index;
+                const numberEl = item.querySelector('.ordering-number');
+                numberEl.textContent = index + 1;
+                const textEl = item.querySelector('div:last-child');
+                textEl.textContent = orderingItems[index];
+            });
+        }
+
+        function formatUserAnswer(questionType, userAnswer) {
+            switch (questionType) {
+                case 'multiple_choice':
+                    return currentQuestion.options[userAnswer];
+                case 'free_form':
+                    return userAnswer;
+                case 'drag_drop':
+                    return userAnswer.map(match => `${match.item} → ${match.zone}`).join(', ');
+                case 'ordering':
+                    return userAnswer.join(' → ');
+                default:
+                    return userAnswer;
+            }
+        }
+
+        function formatCorrectAnswer(question) {
+            switch (question.type) {
+                case 'multiple_choice':
+                    return question.options[question.correct];
+                case 'free_form':
+                    return question.answer;
+                case 'drag_drop':
+                    return question.zones.map(zone => `${zone.correct} → ${zone.label}`).join(', ');
+                case 'ordering':
+                    return question.correct_order.map(index => question.items[index]).join(' → ');
+                default:
+                    return 'N/A';
+            }
         }
 
         function submitAnswer() {
@@ -1045,6 +1434,41 @@
                 }
                 const correctAnswer = currentQuestion.answer.toLowerCase();
                 isCorrect = userAnswer.includes(correctAnswer) || correctAnswer.includes(userAnswer);
+            } else if (currentQuestion.type === 'drag_drop') {
+                if (dragDropAnswers.size !== currentQuestion.zones.length) {
+                    alert('Please match all items to their zones');
+                    return;
+                }
+                
+                userAnswer = Array.from(dragDropAnswers.entries()).map(([zoneIndex, item]) => ({
+                    zone: currentQuestion.zones[zoneIndex].label,
+                    item: item
+                }));
+                
+                // Check if all matches are correct
+                isCorrect = true;
+                for (let [zoneIndex, item] of dragDropAnswers) {
+                    if (currentQuestion.zones[zoneIndex].correct !== item) {
+                        isCorrect = false;
+                        break;
+                    }
+                }
+            } else if (currentQuestion.type === 'ordering') {
+                if (orderingItems.length === 0) {
+                    alert('Please arrange the items in order');
+                    return;
+                }
+                
+                userAnswer = [...orderingItems];
+                
+                // Check if the order matches the correct order
+                isCorrect = true;
+                for (let i = 0; i < currentQuestion.correct_order.length; i++) {
+                    if (orderingItems[i] !== currentQuestion.items[currentQuestion.correct_order[i]]) {
+                        isCorrect = false;
+                        break;
+                    }
+                }
             }
             
             attempts++;
@@ -1060,16 +1484,13 @@
                 // Store the correct answer
                 answeredQuestions.set(currentQuestionIndex, {
                     question: currentQuestion.question,
-                    userAnswer: currentQuestion.type === 'multiple_choice' 
-                        ? currentQuestion.options[userAnswer] 
-                        : userAnswer,
+                    userAnswer: formatUserAnswer(currentQuestion.type, userAnswer),
                     correct: true,
-                    correctAnswer: currentQuestion.type === 'multiple_choice' 
-                        ? currentQuestion.options[currentQuestion.correct] 
-                        : currentQuestion.answer,
+                    correctAnswer: formatCorrectAnswer(currentQuestion),
                     time: currentQuestion.time,
                     type: currentQuestion.type,
-                    attempts: attempts
+                    attempts: attempts,
+                    hintUsed: hintUsed
                 });
                 
                 updateProgress();
@@ -1090,16 +1511,13 @@
                     // Store the incorrect answer
                     answeredQuestions.set(currentQuestionIndex, {
                         question: currentQuestion.question,
-                        userAnswer: currentQuestion.type === 'multiple_choice' 
-                            ? currentQuestion.options[userAnswer] 
-                            : userAnswer,
+                        userAnswer: formatUserAnswer(currentQuestion.type, userAnswer),
                         correct: false,
-                        correctAnswer: currentQuestion.type === 'multiple_choice' 
-                            ? currentQuestion.options[currentQuestion.correct] 
-                            : currentQuestion.answer,
+                        correctAnswer: formatCorrectAnswer(currentQuestion),
                         time: currentQuestion.time,
                         type: currentQuestion.type,
-                        attempts: attempts
+                        attempts: attempts,
+                        hintUsed: hintUsed
                     });
                     
                     updateProgress();
@@ -1232,11 +1650,15 @@
                 item.className = 'answered-question-item';
                 
                 const attemptText = answerData.attempts === 1 ? '1 attempt' : `${answerData.attempts} attempts`;
+                const hintText = answerData.hintUsed ? '💡 Hint used' : '';
                 
                 item.innerHTML = `
                     <div class="question-header">
                         <div class="question-time ${answerData.correct ? 'correct' : 'incorrect'}">${formatTime(answerData.time)}</div>
-                        <div class="attempt-count" style="background: #f0f0f0; padding: 4px 8px; border-radius: 12px; font-size: 12px; color: #666;">${attemptText}</div>
+                        <div style="display: flex; gap: 8px;">
+                            <div class="attempt-count" style="background: #f0f0f0; padding: 4px 8px; border-radius: 12px; font-size: 12px; color: #666;">${attemptText}</div>
+                            ${hintText ? `<div class="hint-indicator" style="background: #17a2b8; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">${hintText}</div>` : ''}
+                        </div>
                     </div>
                     <div class="question-text">${answerData.question}</div>
                     <div class="answer-details">
