@@ -6,7 +6,6 @@ const videoDatabase = {
         videoId: "PkZNo7MFNFg", // Example YouTube video ID
         description: "Learn the fundamentals of JavaScript programming",
         duration: 1200, // in seconds
-        thumbnail: "https://img.youtube.com/vi/PkZNo7MFNFg/maxresdefault.jpg",
         questions: [
             {
                 time: 30,
@@ -37,7 +36,6 @@ const videoDatabase = {
         videoId: "kqtD5dpn9C8", // Example YouTube video ID
         description: "Introduction to Python programming language",
         duration: 1800,
-        thumbnail: "https://img.youtube.com/vi/kqtD5dpn9C8/maxresdefault.jpg",
         questions: [
             {
                 time: 45,
@@ -68,7 +66,6 @@ const videoDatabase = {
         videoId: "UB1O30fR-EE", // Example YouTube video ID
         description: "Learn the building blocks of web pages",
         duration: 2400,
-        thumbnail: "https://img.youtube.com/vi/UB1O30fR-EE/maxresdefault.jpg",
         questions: [
             {
                 time: 60,
