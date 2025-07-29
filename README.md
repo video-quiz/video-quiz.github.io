@@ -28,6 +28,13 @@ An interactive web application that allows users to watch YouTube videos with em
 - **Reset Functionality** - Per-video quiz reset capabilities
 - **Answer History** - Track all answered questions with attempt counts
 
+### 🛠️ Content Creation Tools
+- **Visual Quiz Creator** - User-friendly interface for creating interactive quizzes
+- **Real-time Video Preview** - Watch videos while adding timed questions
+- **Rich Text Editor** - Format questions with bold, italic, lists, and links
+- **Question Type Templates** - Guided forms for all supported question types
+- **Import/Export System** - Load existing quizzes for editing and export completed content
+
 ### 🎨 User Experience
 - **Responsive Design** - Works on desktop and mobile devices
 - **Video Selection Interface** - Thumbnail grid with progress badges
@@ -36,10 +43,17 @@ An interactive web application that allows users to watch YouTube videos with em
 
 ## Quick Start
 
+### For Students/Learners:
 1. **Clone or Download** the project files
 2. **Open `index.html`** in a modern web browser
 3. **Select a video** from the main interface
 4. **Watch and interact** with embedded quiz questions
+
+### For Content Creators:
+1. **Open `creator.html`** in a modern web browser
+2. **Enter a YouTube video URL** and click "Load Video"
+3. **Add questions** at specific timestamps using the intuitive interface
+4. **Export your quiz data** to integrate with the main application
 
 No server setup required - runs entirely in the browser!
 
@@ -47,7 +61,8 @@ No server setup required - runs entirely in the browser!
 
 ```
 video_quiz/
-├── index.html          # Main application file (HTML + CSS + JavaScript)
+├── index.html          # Main quiz application for learners
+├── creator.html        # Question creation tool for educators
 ├── videos.js          # Video database with question banks
 └── README.md          # This documentation file
 ```
@@ -108,7 +123,24 @@ video_quiz/
 }
 ```
 
-## Adding New Videos
+## Creating Quiz Content
+
+### Method 1: Using the Creator Tool (Recommended)
+
+1. **Open `creator.html`** in your web browser
+2. **Load a YouTube video** by pasting the URL and clicking "Load Video"
+3. **Add video information** - title, description, and unique ID
+4. **Create questions interactively:**
+   - Watch the video and pause at desired timestamps
+   - Click "Add Question At [timestamp]" to create questions
+   - Use the rich text editor for question content
+   - Choose from multiple question types with guided forms
+   - Add helpful hints for each question
+5. **Manage your questions** - edit, delete, or reorder in the questions panel
+6. **Export your quiz** - click "Export" to generate the JSON data
+7. **Integrate with main app** - copy the exported data into your `videos.js` file
+
+### Method 2: Manual Editing
 
 ### 1. Edit videos.js
 Add new video entries to the `videoDatabase` object:
