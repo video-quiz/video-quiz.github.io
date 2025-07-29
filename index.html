@@ -357,6 +357,32 @@
             border-radius: 3px;
         }
         
+        .progress-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .progress-status.not-started {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #dee2e6;
+        }
+        
+        .progress-status.in-progress {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .progress-status.completed {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
         .back-button {
             background: none;
             border: none;
@@ -634,6 +660,40 @@
         function getVideoThumbnail(videoId) {
             return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
         }
+
+        // Function to get video progress status
+        function getVideoProgressStatus(video) {
+            const data = localStorage.getItem(`video_quiz_${video.id}`);
+            if (!data) {
+                return 'not-started';
+            }
+            
+            try {
+                const parsed = JSON.parse(data);
+                const completedQuestions = new Set(parsed.completedQuestions || []);
+                const totalQuestions = video.questions.length;
+                
+                if (completedQuestions.size === 0) {
+                    return 'not-started';
+                } else if (completedQuestions.size === totalQuestions) {
+                    return 'completed';
+                } else {
+                    return 'in-progress';
+                }
+            } catch (e) {
+                return 'not-started';
+            }
+        }
+
+        // Function to get progress status text
+        function getProgressStatusText(status) {
+            switch (status) {
+                case 'not-started': return 'Not Started';
+                case 'in-progress': return 'In Progress';
+                case 'completed': return 'Completed';
+                default: return 'Not Started';
+            }
+        }
     
     </script>
     <script>
@@ -708,12 +768,16 @@
                 videoCard.className = 'video-card';
                 videoCard.onclick = () => selectVideo(video.id);
                 
+                const progressStatus = getVideoProgressStatus(video);
+                const statusText = getProgressStatusText(progressStatus);
+                
                 videoCard.innerHTML = `
                     <img src="${getVideoThumbnail(video.videoId)}" alt="${video.title}" class="video-thumbnail" onerror="this.src='https://img.youtube.com/vi/${video.videoId}/maxresdefault.jpg'">
                     <div class="video-info">
                         <div class="video-title">${video.title}</div>
                         <div class="video-description">${video.description}</div>
                         <div class="video-meta">
+                            <span class="progress-status ${progressStatus}">${statusText}</span>
                             <span class="question-count">${video.questions.length} questions</span>
                         </div>
                     </div>
@@ -783,6 +847,9 @@
             document.getElementById('videoSelection').classList.remove('hidden');
             document.getElementById('setupSection').classList.add('hidden');
             document.getElementById('videoSection').classList.add('hidden');
+            
+            // Refresh video selection to update progress status
+            loadVideoSelection();
             
             // Destroy existing player
             if (player && player.destroy) {
