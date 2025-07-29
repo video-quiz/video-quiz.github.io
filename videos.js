@@ -5,7 +5,6 @@ const videoDatabase = {
         title: "JavaScript Basics Tutorial",
         videoId: "PkZNo7MFNFg", // Example YouTube video ID
         description: "Learn the fundamentals of JavaScript programming",
-        duration: 1200, // in seconds
         questions: [
             {
                 time: 30,
@@ -35,7 +34,6 @@ const videoDatabase = {
         title: "Python for Beginners",
         videoId: "kqtD5dpn9C8", // Example YouTube video ID
         description: "Introduction to Python programming language",
-        duration: 1800,
         questions: [
             {
                 time: 45,
@@ -65,7 +63,6 @@ const videoDatabase = {
         title: "HTML & CSS Fundamentals",
         videoId: "UB1O30fR-EE", // Example YouTube video ID
         description: "Learn the building blocks of web pages",
-        duration: 2400,
         questions: [
             {
                 time: 60,
