@@ -456,7 +456,14 @@
             dragDropAnswers.clear();
             orderingItems = [];
             
-            document.getElementById('quizQuestion').textContent = currentQuestion.question;
+            // Render question as markdown
+            const questionElement = document.getElementById('quizQuestion');
+            try {
+                questionElement.innerHTML = marked.parse(currentQuestion.question);
+            } catch (error) {
+                // Fallback to plain text if parsing fails
+                questionElement.textContent = currentQuestion.question;
+            }
             document.getElementById('feedback').innerHTML = '';
             document.getElementById('feedback').className = 'feedback';
             document.getElementById('continueBtn').classList.add('hidden');
@@ -984,7 +991,9 @@
                 // Add tooltip
                 const tooltip = document.createElement('div');
                 tooltip.className = 'marker-tooltip';
-                tooltip.textContent = `${formatTime(question.time)}: ${question.question.substring(0, 30)}${question.question.length > 30 ? '...' : ''}`;
+                // Extract plain text from HTML/markdown for tooltip
+                const questionText = question.question.replace(/<[^>]*>/g, '').replace(/[#*_`]/g, '');
+                tooltip.textContent = `${formatTime(question.time)}: ${questionText.substring(0, 30)}${questionText.length > 30 ? '...' : ''}`;
                 marker.appendChild(tooltip);
                 
                 // Click to re-open question

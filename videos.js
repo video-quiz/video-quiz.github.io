@@ -1,6 +1,7 @@
 // Video database with question banks
 window.videoDatabase = {
 
+
     "sample-javascript": {
         "id": "sample-javascript",
         "title": "JavaScript Basics Tutorial",
@@ -11,14 +12,14 @@ window.videoDatabase = {
             {
                 "time": 30,
                 "type": "multiple_choice",
-                "question": "What is JavaScript primarily used for?",
+                "question": "What is **JavaScript** primarily used for?",
+                "hint": "Think about what runs in web browsers and makes websites interactive.",
                 "options": [
                     "Web development",
                     "Database management",
                     "Operating systems"
                 ],
-                "correct": 0,
-                "hint": "Think about what runs in web browsers and makes websites interactive."
+                "correct": 0
             },
             {
                 "time": 120,
@@ -55,8 +56,12 @@ window.videoDatabase = {
                 "time": 240,
                 "type": "ordering",
                 "question": "Put these JavaScript execution steps in the correct order:",
-                "correct_order": [0, 1, 2, 3],
-
+                "correct_order": [
+                    0,
+                    1,
+                    2,
+                    3
+                ],
                 "items": [
                     "Parse the code",
                     "Check for syntax errors",

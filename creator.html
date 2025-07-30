@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Quiz Creator</title>
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <!-- SimpleMDE for markdown editing -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
@@ -98,8 +96,17 @@ Write your video introduction here using markdown...
                         </div>
                         
                         <div class="form-group">
-                            <label for="questionText">Question:</label>
-                            <div id="questionEditor" class="quill-container"></div>
+                            <label for="questionText">Question (Markdown):</label>
+                            <div class="markdown-editor-container">
+                                <textarea id="questionText" placeholder="**Question:** What is the main concept?
+
+Use markdown formatting:
+- **bold text**
+- *italic text*
+- `code snippets`
+- [links](http://example.com)
+- Lists and more!"></textarea>
+                            </div>
                         </div>
                         
                         <div class="form-group">
@@ -199,29 +206,18 @@ Write your video introduction here using markdown...
         };
         let currentQuestion = null;
         let currentQuestionIndex = -1;
-        let quill;
         let markdownEditor;
+        let questionEditor;
         let isPlaying = false;
         let videoDuration = 0;
         let currentTime = 0;
         
-            // Initialize Quill editor and load existing videos
+            // Load existing videos
         document.addEventListener('DOMContentLoaded', function() {
-            quill = new Quill('#questionEditor', {
-                theme: 'snow',
-                placeholder: 'Enter your question here...',
-                modules: {
-                    toolbar: [
-                        ['bold', 'italic', 'underline'],
-                        ['link'],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        ['clean']
-                    ]
-                }
-            });
             
-            // Initialize markdown editor
+            // Initialize markdown editors
             initializeMarkdownEditor();
+            initializeQuestionEditor();
             
             // Debug: Check if videoDatabase is available
             console.log('DOMContentLoaded - videoDatabase available:', typeof videoDatabase !== 'undefined');
@@ -269,6 +265,35 @@ Write your video introduction here using markdown...
             // Update video data when content changes
             markdownEditor.codemirror.on('change', function() {
                 videoData.markdownContent = markdownEditor.value();
+            });
+        }
+        
+        // Initialize question markdown editor
+        function initializeQuestionEditor() {
+            // Initialize SimpleMDE for questions
+            questionEditor = new SimpleMDE({
+                element: document.getElementById('questionText'),
+                placeholder: '**Question:** What is the main concept?\n\nUse markdown formatting:\n- **bold text**\n- *italic text*\n- `code snippets`\n- [links](http://example.com)\n- Lists and more!',
+                spellChecker: false,
+                status: false,
+                toolbar: [
+                    'bold', 'italic', 'code', '|',
+                    'unordered-list', 'ordered-list', '|',
+                    'link', '|',
+                    'preview', 'side-by-side', '|',
+                    'guide'
+                ],
+                previewRender: function(plainText) {
+                    try {
+                        return marked.parse(plainText);
+                    } catch (error) {
+                        return '<p style="color: red;">Error parsing markdown: ' + error.message + '</p>';
+                    }
+                },
+                shortcuts: {
+                    togglePreview: 'Cmd-P',
+                    toggleSideBySide: 'F9'
+                }
             });
         }
         
@@ -574,7 +599,7 @@ Write your video introduction here using markdown...
             // Reset form
             document.getElementById('formTitle').textContent = 'Add Question';
             document.getElementById('questionType').value = 'multiple_choice';
-            quill.setContents([]);
+            questionEditor.value('');
             document.getElementById('questionHint').value = '';
             
             updateQuestionTypeFields();
@@ -720,10 +745,10 @@ Write your video introduction here using markdown...
         // Save question
         function saveQuestion() {
             const type = document.getElementById('questionType').value;
-            const questionText = quill.root.innerHTML.trim();
+            const questionText = questionEditor.value().trim();
             const hint = document.getElementById('questionHint').value.trim();
             
-            if (!questionText || questionText === '<p><br></p>') {
+            if (!questionText) {
                 showNotification('Please enter a question', 'error');
                 return;
             }
@@ -736,7 +761,7 @@ Write your video introduction here using markdown...
             const question = {
                 time: timeInSeconds,
                 type: type,
-                question: quill.getText().trim(), // Use plain text for the question
+                question: questionEditor.value().trim(), // Store as markdown text
             };
             
             if (hint) {
@@ -880,7 +905,7 @@ Write your video introduction here using markdown...
             document.getElementById('questionSeconds').value = seconds;
             
             document.getElementById('questionType').value = question.type;
-            quill.setText(question.question);
+            questionEditor.value(question.question);
             document.getElementById('questionHint').value = question.hint || '';
             
             updateQuestionTypeFields();
