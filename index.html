@@ -101,12 +101,35 @@
     <script>
         // Function to get all videos
         function getAllVideos() {
+            // Check if we're in preview mode
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('preview')) {
+                const previewData = getPreviewData();
+                return previewData ? [previewData] : [];
+            }
             return Object.values(window.videoDatabase);
         }
 
         // Function to get a specific video by ID
         function getVideoById(id) {
+            // Check if we're in preview mode
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('preview')) {
+                const previewData = getPreviewData();
+                return previewData && previewData.id === id ? previewData : null;
+            }
             return window.videoDatabase[id] || null;
+        }
+        
+        // Function to get preview data from localStorage
+        function getPreviewData() {
+            try {
+                const previewDataStr = localStorage.getItem('video_quiz_preview');
+                return previewDataStr ? JSON.parse(previewDataStr) : null;
+            } catch (e) {
+                console.error('Error loading preview data:', e);
+                return null;
+            }
         }
 
         // Function to get video thumbnail URL
@@ -257,6 +280,39 @@
             const videoGrid = document.getElementById('videoGrid');
             const videos = getAllVideos();
             
+            // Check if we're in preview mode and add indicator
+            const urlParams = new URLSearchParams(window.location.search);
+            const isPreviewMode = urlParams.has('preview');
+            
+            if (isPreviewMode) {
+                // Add subtle watermark to body
+                document.body.style.position = 'relative';
+                document.body.style.setProperty('--preview-watermark', '"PREVIEW"');
+                document.body.classList.add('preview-mode');
+                
+                // Add watermark styles if not already added
+                if (!document.getElementById('preview-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'preview-styles';
+                    style.textContent = `
+                        .preview-mode::before {
+                            content: var(--preview-watermark);
+                            position: fixed;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%) rotate(-45deg);
+                            font-size: 8rem;
+                            font-weight: bold;
+                            color: rgba(0, 0, 0, 0.05);
+                            pointer-events: none;
+                            z-index: 1;
+                            user-select: none;
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }
+            
             videoGrid.innerHTML = '';
             
             videos.forEach(video => {
@@ -315,8 +371,18 @@
         function handleURLRouting() {
             const urlParams = new URLSearchParams(window.location.search);
             const videoId = urlParams.get('video');
+            const previewId = urlParams.get('preview');
             
-            if (videoId) {
+            if (previewId) {
+                const previewData = getPreviewData();
+                if (previewData && previewData.id === previewId) {
+                    loadVideo(previewData);
+                } else {
+                    alert('Preview data not found. Please create a preview from the creator first.');
+                    // Redirect to video selection
+                    showVideoSelection();
+                }
+            } else if (videoId) {
                 const video = getVideoById(videoId);
                 if (video) {
                     loadVideo(video);
@@ -328,9 +394,15 @@
         function selectVideo(videoId) {
             const video = getVideoById(videoId);
             if (video) {
-                // Update URL
+                // Update URL - check if we're in preview mode
+                const urlParams = new URLSearchParams(window.location.search);
                 const newUrl = new URL(window.location);
-                newUrl.searchParams.set('video', videoId);
+                
+                if (urlParams.has('preview')) {
+                    newUrl.searchParams.set('preview', videoId);
+                } else {
+                    newUrl.searchParams.set('video', videoId);
+                }
                 window.history.pushState({}, '', newUrl);
                 
                 loadVideo(video);
@@ -361,6 +433,7 @@
             // Clear URL params
             const newUrl = new URL(window.location);
             newUrl.searchParams.delete('video');
+            newUrl.searchParams.delete('preview');
             window.history.pushState({}, '', newUrl);
             
             // Reset state (but don't clear data - it's stored per video)

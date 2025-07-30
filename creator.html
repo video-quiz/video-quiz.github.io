@@ -149,6 +149,9 @@ Use markdown formatting:
                         <button class="btn btn-secondary" onclick="clearVideo()" style="flex: 1; font-size: 12px;">Start New Video</button>
                         <button class="btn btn-primary" onclick="openVideoQuiz()" id="openQuizBtn" style="flex: 1; font-size: 12px; display: none;">Open Quiz</button>
                     </div>
+                    <div style="display: flex; gap: 5px; margin-top: 5px;">
+                        <button class="btn btn-info" onclick="previewVideoQuiz()" id="previewBtn" style="flex: 1; font-size: 12px; background: #17a2b8; display: none;">Preview Quiz</button>
+                    </div>
                 </div>
                 
                 <div class="questions-list" id="questionsList">
@@ -359,6 +362,7 @@ Use markdown formatting:
             if (!videoId) {
                 // Hide the Open Quiz button when no video is selected
                 document.getElementById('openQuizBtn').style.display = 'none';
+                document.getElementById('previewBtn').style.display = 'none';
                 return;
             }
             
@@ -414,11 +418,13 @@ Use markdown formatting:
                 
                 // Show the Open Quiz button for existing videos
                 document.getElementById('openQuizBtn').style.display = 'block';
+                document.getElementById('previewBtn').style.display = 'block';
                 
                 updateQuestionsList();
             } else {
                 showNotification('Video not found or videos.js not loaded', 'error');
                 document.getElementById('openQuizBtn').style.display = 'none';
+                document.getElementById('previewBtn').style.display = 'none';
             }
         }
         
@@ -432,6 +438,7 @@ Use markdown formatting:
             
             // Hide the Open Quiz button
             document.getElementById('openQuizBtn').style.display = 'none';
+            document.getElementById('previewBtn').style.display = 'none';
             
             // Clear SimpleMDE editor
             if (markdownEditor) {
@@ -506,6 +513,7 @@ Use markdown formatting:
             document.getElementById('videoControls').style.display = 'flex';
             document.getElementById('videoInfo').style.display = 'block';
             document.getElementById('markdownSection').style.display = 'block';
+            document.getElementById('previewBtn').style.display = 'block';
             
             // Initialize YouTube player
             player = new YT.Player('player', {
@@ -1084,6 +1092,39 @@ Use markdown formatting:
             // Open the quiz page with the video ID
             const quizUrl = `index.html?video=${videoId}`;
             window.open(quizUrl, '_blank');
+        }
+        
+        // Preview video quiz with current data from localStorage
+        function previewVideoQuiz() {
+            if (!videoData.videoId) {
+                showNotification('Please load a video first', 'error');
+                return;
+            }
+            
+            // Update video data with current form values
+            videoData.title = document.getElementById('videoTitle').value || 'Untitled Video';
+            videoData.description = document.getElementById('videoDescription').value || 'Video description';
+            videoData.id = document.getElementById('videoId').value || videoData.videoId;
+            videoData.markdownContent = markdownEditor ? markdownEditor.value() : '';
+            
+            // Create preview data with current questions
+            const previewData = {
+                id: videoData.id,
+                title: videoData.title,
+                videoId: videoData.videoId,
+                description: videoData.description,
+                markdownContent: videoData.markdownContent,
+                questions: videoData.questions.sort((a, b) => a.time - b.time)
+            };
+            
+            // Store preview data in localStorage
+            localStorage.setItem('video_quiz_preview', JSON.stringify(previewData));
+            
+            // Open the quiz page in preview mode
+            const previewUrl = `index.html?preview=${videoData.id}`;
+            window.open(previewUrl, '_blank');
+            
+            showNotification('Preview data saved to localStorage', 'success');
         }
         
         // Show notification
