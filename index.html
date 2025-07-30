@@ -173,6 +173,36 @@
             return shuffled;
         }
 
+        // Shuffle array ensuring result is never the same as original order
+        function shuffleArrayUntilDifferent(array) {
+            if (array.length <= 1) return [...array];
+            
+            let shuffled;
+            let attempts = 0;
+            const maxAttempts = 100; // Prevent infinite loop
+            
+            do {
+                shuffled = shuffleArray(array);
+                attempts++;
+            } while (arraysEqual(array, shuffled) && attempts < maxAttempts);
+            
+            // If we couldn't find a different arrangement, manually swap first two elements
+            if (arraysEqual(array, shuffled)) {
+                [shuffled[0], shuffled[1]] = [shuffled[1], shuffled[0]];
+            }
+            
+            return shuffled;
+        }
+
+        // Check if two arrays are equal
+        function arraysEqual(a, b) {
+            if (a.length !== b.length) return false;
+            for (let i = 0; i < a.length; i++) {
+                if (a[i] !== b[i]) return false;
+            }
+            return true;
+        }
+
         // LocalStorage functions
         function getStorageKey(videoId) {
             return `video_quiz_${videoId}`;
@@ -561,8 +591,8 @@
             dropZones.className = 'drop-zones';
             dropZones.innerHTML = '<h4>Drop Here:</h4>';
             
-            // Create shuffled array of left items for true randomization
-            const shuffledPairs = shuffleArray(currentQuestion.pairs);
+            // Create shuffled array of left items ensuring it's never in correct order
+            const shuffledPairs = shuffleArrayUntilDifferent(currentQuestion.pairs);
             
             // Create draggable items from shuffled pairs
             shuffledPairs.forEach((pair, index) => {
@@ -733,8 +763,8 @@
             container.className = 'ordering-container';
             container.innerHTML = '<h4>Drag to reorder:</h4>';
             
-            // Initialize with properly shuffled items for true randomization
-            orderingItems = shuffleArray(currentQuestion.items);
+            // Initialize with shuffled items ensuring they're never in correct order
+            orderingItems = shuffleArrayUntilDifferent(currentQuestion.items);
             
             orderingItems.forEach((item, index) => {
                 const orderingItem = document.createElement('div');
