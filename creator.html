@@ -169,7 +169,7 @@ Use markdown formatting:
                 <button class="close" onclick="closeExportModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Copy the JSON below and paste it into your videos.js file:</p>
+                <p>Copy the complete updated database below and replace the entire contents of your videos.js file:</p>
                 <textarea id="exportTextarea" class="export-textarea" readonly></textarea>
             </div>
             <div class="modal-footer">
@@ -1008,19 +1008,29 @@ Use markdown formatting:
             videoData.id = document.getElementById('videoId').value || videoData.videoId;
             videoData.markdownContent = markdownEditor ? markdownEditor.value() : '';
             
-            // Generate export data
-            const exportData = {
-                [videoData.id]: {
-                    id: videoData.id,
-                    title: videoData.title,
-                    videoId: videoData.videoId,
-                    description: videoData.description,
-                    markdownContent: videoData.markdownContent,
-                    questions: videoData.questions.sort((a, b) => a.time - b.time)
-                }
+            // Get the current database
+            let database = null;
+            if (typeof videoDatabase !== 'undefined') {
+                database = videoDatabase;
+            } else if (typeof window.videoDatabase !== 'undefined') {
+                database = window.videoDatabase;
+            }
+            
+            // Create updated database with current video
+            const updatedDatabase = database ? { ...database } : {};
+            updatedDatabase[videoData.id] = {
+                id: videoData.id,
+                title: videoData.title,
+                videoId: videoData.videoId,
+                description: videoData.description,
+                markdownContent: videoData.markdownContent,
+                questions: videoData.questions.sort((a, b) => a.time - b.time)
             };
             
-            document.getElementById('exportTextarea').value = JSON.stringify(exportData, null, 4);
+            // Generate the full export with window.videoDatabase prefix
+            const exportString = `window.videoDatabase = ${JSON.stringify(updatedDatabase, null, 4)};`;
+            
+            document.getElementById('exportTextarea').value = exportString;
             document.getElementById('exportModal').style.display = 'block';
         }
         
