@@ -55,6 +55,8 @@ window.videoDatabase = {
                 "time": 240,
                 "type": "ordering",
                 "question": "Put these JavaScript execution steps in the correct order:",
+                "correct_order": [0, 1, 2, 3],
+
                 "items": [
                     "Parse the code",
                     "Check for syntax errors",
@@ -146,6 +148,7 @@ Let's start your Python journey! 🚀`,
                 time: 240,
                 type: "ordering",
                 question: "Put these Python list operations in order of execution:",
+                correct_order: [0, 1, 2, 3],
                 items: [
                     "Create empty list",
                     "Add elements with append()",
@@ -240,6 +243,7 @@ By the end of this tutorial, you'll create:
                 time: 240,
                 type: "ordering",
                 question: "Put these CSS specificity selectors in order from lowest to highest priority:",
+                correct_order: [0, 1, 2, 3],
                 items: [
                     "Element selector (p)",
                     "Class selector (.class)",
