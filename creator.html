@@ -395,6 +395,11 @@ Use markdown formatting:
                     content.style.display = 'block';
                     icon.textContent = '▼';
                     
+                    // Refresh the editor when it becomes visible
+                    setTimeout(() => {
+                        markdownEditor.codemirror.refresh();
+                    }, 100);
+                    
                 } else {
                     console.log('No markdown content or editor not ready');
                     if (markdownEditor) {
@@ -618,6 +623,13 @@ Use markdown formatting:
             
             updateQuestionTypeFields();
             document.getElementById('questionForm').style.display = 'block';
+            
+            // Refresh the question editor when the form becomes visible
+            if (questionEditor) {
+                setTimeout(() => {
+                    questionEditor.codemirror.refresh();
+                }, 100);
+            }
             
             // Scroll form into view
             document.getElementById('questionForm').scrollIntoView({ behavior: 'smooth' });
@@ -989,6 +1001,14 @@ Use markdown formatting:
             }, 100);
             
             document.getElementById('questionForm').style.display = 'block';
+            
+            // Refresh the question editor when the form becomes visible
+            if (questionEditor) {
+                setTimeout(() => {
+                    questionEditor.codemirror.refresh();
+                }, 100);
+            }
+            
             document.getElementById('questionForm').scrollIntoView({ behavior: 'smooth' });
         }
         
@@ -1089,6 +1109,12 @@ Use markdown formatting:
             if (content.style.display === 'none') {
                 content.style.display = 'block';
                 icon.textContent = '▼';
+                // Refresh the markdown editor when it becomes visible
+                if (markdownEditor) {
+                    setTimeout(() => {
+                        markdownEditor.codemirror.refresh();
+                    }, 100);
+                }
             } else {
                 content.style.display = 'none';
                 icon.textContent = '▶';
