@@ -882,13 +882,18 @@ Use markdown formatting:
                         <span class="question-time">${formatTime(question.time)}</span>
                         <span class="question-type">${question.type}</span>
                     </div>
-                    <div class="question-text">${question.question}</div>
+                    <div class="question-text"></div>
                     <div class="question-actions">
                         <button onclick="editQuestion(${question.originalIndex}); event.stopPropagation();">Edit</button>
                         <button class="delete-btn" onclick="deleteQuestion(${question.originalIndex}); event.stopPropagation();">Delete</button>
                     </div>
                 </div>
             `).join('');
+            
+            // Safely populate question text after DOM creation
+            container.querySelectorAll('.question-text').forEach((textDiv, index) => {
+                textDiv.textContent = sortedQuestions[index].question;
+            });
         }
         
         // Select question

@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="styles/index.css">
     <!-- Marked.js for markdown parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- DOMPurify for XSS protection -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
     <script src="videos.js"></script>
 
 </head>
@@ -456,10 +458,12 @@
             dragDropAnswers.clear();
             orderingItems = [];
             
-            // Render question as markdown
+            // Render question as markdown with XSS protection
             const questionElement = document.getElementById('quizQuestion');
             try {
-                questionElement.innerHTML = marked.parse(currentQuestion.question);
+                const parsedMarkdown = marked.parse(currentQuestion.question);
+                const safeHTML = DOMPurify.sanitize(parsedMarkdown);
+                questionElement.innerHTML = safeHTML;
             } catch (error) {
                 // Fallback to plain text if parsing fails
                 questionElement.textContent = currentQuestion.question;
@@ -1066,6 +1070,14 @@
                 const attemptText = answerData.attempts === 1 ? '1 attempt' : `${answerData.attempts} attempts`;
                 const hintText = answerData.hintUsed ? '💡 Hint used' : '';
                 
+                // Parse markdown for the question text
+                let parsedQuestion;
+                try {
+                    parsedQuestion = DOMPurify.sanitize(marked.parse(answerData.question));
+                } catch (error) {
+                    parsedQuestion = answerData.question; // Fallback to plain text
+                }
+                
                 item.innerHTML = `
                     <div class="question-header">
                         <div class="question-time ${answerData.correct ? 'correct' : 'incorrect'}">${formatTime(answerData.time)}</div>
@@ -1074,7 +1086,7 @@
                             ${hintText ? `<div class="hint-indicator" style="background: #17a2b8; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">${hintText}</div>` : ''}
                         </div>
                     </div>
-                    <div class="question-text">${answerData.question}</div>
+                    <div class="question-text">${parsedQuestion}</div>
                     <div class="answer-details">
                         <div class="user-answer ${answerData.correct ? 'correct' : 'incorrect'}">
                             Your answer: ${answerData.userAnswer}
