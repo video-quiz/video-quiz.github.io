@@ -352,16 +352,7 @@ Write your video introduction here using markdown...
                 document.getElementById('videoDescription').value = videoData.description;
                 document.getElementById('videoId').value = videoData.id;
                 
-                // Load markdown content if it exists
-                console.log('Loading markdown content...'); 
-                console.log('videoData.markdownContent exists:', !!videoData.markdownContent);
-                console.log('videoData.markdownContent length:', videoData.markdownContent ? videoData.markdownContent.length : 0);
-                console.log('markdownEditor initialized:', !!markdownEditor);
-                
                 if (videoData.markdownContent && markdownEditor) {
-                    console.log('Setting markdown content in editor...');
-                    console.log('First 100 chars of content:', videoData.markdownContent.substring(0, 100));
-                    
                     // Set the content in SimpleMDE
                     markdownEditor.value(videoData.markdownContent);
                     
@@ -385,7 +376,6 @@ Write your video introduction here using markdown...
                 
                 updateQuestionsList();
             } else {
-                console.error('Video not found:', videoId, 'Database available:', !!database);
                 showNotification('Video not found or videos.js not loaded', 'error');
             }
         }
