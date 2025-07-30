@@ -1,57 +1,80 @@
 // Video database with question banks
-const videoDatabase = {
+window.videoDatabase = {
+
     "sample-javascript": {
-        id: "sample-javascript",
-        title: "JavaScript Basics Tutorial",
-        videoId: "PkZNo7MFNFg", // Example YouTube video ID
-        description: "Learn the fundamentals of JavaScript programming",
-        questions: [
+        "id": "sample-javascript",
+        "title": "JavaScript Basics Tutorial",
+        "videoId": "PkZNo7MFNFg",
+        "description": "Learn the fundamentals of JavaScript programming",
+        "markdownContent": "**Welcome to this comprehensive JavaScript tutorial!**\n\n\n- **Variables and Data Types** - Understanding how to store and work with data\n- **Functions** - Creating reusable blocks of code\n- **Control Flow** - Making decisions with if/else statements\n- **Arrays and Objects** - Working with complex data structures\n- **DOM Manipulation** - Making your web pages interactive\n\n## Prerequisites\n\n- Basic understanding of HTML and CSS\n- A text editor (VS Code recommended)\n- A web browser for testing\n\n> **Note:** This is a hands-on tutorial, so make sure you code along!\n\n---\n\n*Ready to dive into the world of JavaScript? Let's get started!*",
+        "questions": [
             {
-                time: 30,
-                type: "multiple_choice",
-                question: "What is JavaScript primarily used for?",
-                options: ["Web development", "Database management", "Operating systems"],
-                correct: 0,
-                hint: "Think about what runs in web browsers and makes websites interactive."
-            },
-            {
-                time: 120,
-                type: "free_form",
-                question: "What keyword is used to declare a variable in modern JavaScript?",
-                answer: "let",
-                hint: "This keyword was introduced in ES6 and is preferred over 'var' for block-scoped variables."
-            },
-            {
-                time: 180,
-                type: "drag_drop",
-                question: "Match each JavaScript concept with its correct description:",
-                pairs: [
-                    { left: "Variable", right: "Stores data values" },
-                    { left: "Function", right: "Reusable block of code" },
-                    { left: "Array", right: "Ordered list of items" },
-                    { left: "Object", right: "Collection of key-value pairs" }
+                "time": 30,
+                "type": "multiple_choice",
+                "question": "What is JavaScript primarily used for?",
+                "options": [
+                    "Web development",
+                    "Database management",
+                    "Operating systems"
                 ],
-                hint: "Think about the fundamental building blocks of JavaScript programming."
+                "correct": 0,
+                "hint": "Think about what runs in web browsers and makes websites interactive."
             },
             {
-                time: 240,
-                type: "ordering",
-                question: "Put these JavaScript execution steps in the correct order:",
-                items: [
+                "time": 120,
+                "type": "free_form",
+                "question": "What keyword is used to declare a variable in modern JavaScript?",
+                "answer": "let",
+                "hint": "This keyword was introduced in ES6 and is preferred over 'var' for block-scoped variables."
+            },
+            {
+                "time": 180,
+                "type": "drag_drop",
+                "question": "Match each JavaScript concept with its correct description:",
+                "pairs": [
+                    {
+                        "left": "Variable",
+                        "right": "Stores data values"
+                    },
+                    {
+                        "left": "Function",
+                        "right": "Reusable block of code"
+                    },
+                    {
+                        "left": "Array",
+                        "right": "Ordered list of items"
+                    },
+                    {
+                        "left": "Object",
+                        "right": "Collection of key-value pairs"
+                    }
+                ],
+                "hint": "Think about the fundamental building blocks of JavaScript programming."
+            },
+            {
+                "time": 240,
+                "type": "ordering",
+                "question": "Put these JavaScript execution steps in the correct order:",
+                "items": [
                     "Parse the code",
-                    "Check for syntax errors", 
+                    "Check for syntax errors",
                     "Create execution context",
                     "Execute the code"
                 ],
-                hint: "Consider what happens from the moment JavaScript code is loaded until it runs."
+                "hint": "Consider what happens from the moment JavaScript code is loaded until it runs."
             },
             {
-                time: 300,
-                type: "multiple_choice",
-                question: "Which of these is NOT a JavaScript data type?",
-                options: ["String", "Boolean", "Integer", "Number"],
-                correct: 2,
-                hint: "JavaScript has a 'Number' type that handles both integers and decimals."
+                "time": 300,
+                "type": "multiple_choice",
+                "question": "Which of these is NOT a JavaScript data type?",
+                "options": [
+                    "String",
+                    "Boolean",
+                    "Integer",
+                    "Number"
+                ],
+                "correct": 2,
+                "hint": "JavaScript has a 'Number' type that handles both integers and decimals."
             }
         ]
     },
@@ -61,6 +84,36 @@ const videoDatabase = {
         title: "Python for Beginners",
         videoId: "kqtD5dpn9C8", // Example YouTube video ID
         description: "Introduction to Python programming language",
+        markdownContent: `# Python for Beginners 🐍
+
+Welcome to the wonderful world of Python programming!
+
+## Why Python?
+
+Python is one of the most **beginner-friendly** programming languages because:
+
+- ✅ **Simple, readable syntax** - looks almost like English
+- ✅ **Versatile** - used for web development, data science, AI, and more
+- ✅ **Huge community** - tons of help and resources available
+- ✅ **Great career prospects** - high demand in the job market
+
+## What we'll cover:
+
+1. **Setting up Python** - Installation and your first "Hello World"
+2. **Variables and Data Types** - Strings, numbers, booleans, and lists
+3. **Input/Output** - Getting user input and displaying results
+4. **Control Structures** - if/else statements and loops
+5. **Functions** - Writing reusable code
+
+## You'll need:
+
+- A computer (Windows, Mac, or Linux)
+- Python 3.x installed
+- A text editor or IDE (we'll use IDLE or VS Code)
+
+> 💡 **Pro tip:** Don't just watch - code along! The best way to learn programming is by doing.
+
+Let's start your Python journey! 🚀`,
         questions: [
             {
                 time: 45,
@@ -117,6 +170,44 @@ const videoDatabase = {
         title: "HTML & CSS Fundamentals",
         videoId: "UB1O30fR-EE", // Example YouTube video ID
         description: "Learn the building blocks of web pages",
+        markdownContent: `# HTML & CSS Fundamentals 🌐
+
+Master the building blocks of the modern web!
+
+## About This Course
+
+This tutorial will teach you the **essential skills** needed to create beautiful, functional websites from scratch.
+
+### HTML (HyperText Markup Language)
+- 📄 **Structure** - Learn how to organize content with semantic elements
+- 🔗 **Links & Navigation** - Connect pages and create user-friendly menus  
+- 📷 **Media** - Embed images, videos, and other multimedia content
+- 📋 **Forms** - Collect user input and data
+
+### CSS (Cascading Style Sheets)
+- 🎨 **Styling** - Colors, fonts, spacing, and visual design
+- 📱 **Responsive Design** - Make your sites look great on all devices
+- 🔧 **Layout** - Flexbox, Grid, and positioning techniques
+- ✨ **Animations** - Add smooth transitions and interactive effects
+
+## What You'll Build
+
+By the end of this tutorial, you'll create:
+- A complete personal portfolio website
+- Mobile-responsive design
+- Professional navigation and layout
+- Contact forms and interactive elements
+
+## Prerequisites
+
+- Basic computer skills
+- A text editor (VS Code recommended)
+- A modern web browser
+- Enthusiasm to learn! 😊
+
+---
+
+**Ready to start building amazing websites? Let's dive in!** 🚀`,
         questions: [
             {
                 time: 60,
@@ -180,18 +271,3 @@ const videoDatabase = {
         ]
     }
 };
-
-// Function to get all videos
-function getAllVideos() {
-    return Object.values(videoDatabase);
-}
-
-// Function to get a specific video by ID
-function getVideoById(id) {
-    return videoDatabase[id] || null;
-}
-
-// Function to get video thumbnail URL
-function getVideoThumbnail(videoId) {
-    return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-}
