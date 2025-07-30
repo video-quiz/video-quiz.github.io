@@ -17,7 +17,10 @@
 <body>
     <div class="container">
         <div class="video-selection" id="videoSelection">
-            <h2>Select a Video to Watch</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">Select a Video to Watch</h2>
+                <input type="text" id="videoSearch" placeholder="Search videos..." class="search-input" style="max-width: 300px;">
+            </div>
             <div class="video-grid" id="videoGrid">
                 <!-- Videos will be loaded here -->
             </div>
@@ -277,6 +280,34 @@
                 `;
                 
                 videoGrid.appendChild(videoCard);
+            });
+            
+            // Initialize search functionality
+            initializeVideoSearch();
+        }
+
+        // Initialize video search functionality
+        function initializeVideoSearch() {
+            const searchInput = document.getElementById('videoSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', filterVideos);
+            }
+        }
+
+        // Filter videos based on search input
+        function filterVideos() {
+            const searchTerm = document.getElementById('videoSearch').value.toLowerCase();
+            const videoCards = document.querySelectorAll('.video-card');
+            
+            videoCards.forEach(card => {
+                const title = card.querySelector('.video-title').textContent.toLowerCase();
+                const description = card.querySelector('.video-description').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
             });
         }
 
