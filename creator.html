@@ -145,7 +145,10 @@ Use markdown formatting:
                     <select id="existingVideoSelect" onchange="loadExistingVideo()">
                         <option value="">Select a video to edit...</option>
                     </select>
-                    <button class="btn btn-secondary" onclick="clearVideo()" style="margin-top: 10px; width: 100%; font-size: 12px;">Start New Video</button>
+                    <div style="display: flex; gap: 5px; margin-top: 10px;">
+                        <button class="btn btn-secondary" onclick="clearVideo()" style="flex: 1; font-size: 12px;">Start New Video</button>
+                        <button class="btn btn-primary" onclick="openVideoQuiz()" id="openQuizBtn" style="flex: 1; font-size: 12px; display: none;">Open Quiz</button>
+                    </div>
                 </div>
                 
                 <div class="questions-list" id="questionsList">
@@ -353,7 +356,11 @@ Use markdown formatting:
         // Load existing video for editing
         function loadExistingVideo() {
             const videoId = document.getElementById('existingVideoSelect').value;
-            if (!videoId) return;
+            if (!videoId) {
+                // Hide the Open Quiz button when no video is selected
+                document.getElementById('openQuizBtn').style.display = 'none';
+                return;
+            }
             
             console.log('Loading video for editing:', videoId);
             
@@ -400,9 +407,13 @@ Use markdown formatting:
                     icon.textContent = '▶';
                 }
                 
+                // Show the Open Quiz button for existing videos
+                document.getElementById('openQuizBtn').style.display = 'block';
+                
                 updateQuestionsList();
             } else {
                 showNotification('Video not found or videos.js not loaded', 'error');
+                document.getElementById('openQuizBtn').style.display = 'none';
             }
         }
         
@@ -413,6 +424,9 @@ Use markdown formatting:
             document.getElementById('videoTitle').value = '';
             document.getElementById('videoDescription').value = '';
             document.getElementById('videoId').value = '';
+            
+            // Hide the Open Quiz button
+            document.getElementById('openQuizBtn').style.display = 'none';
             
             // Clear SimpleMDE editor
             if (markdownEditor) {
@@ -1023,6 +1037,19 @@ Use markdown formatting:
             showNotification('Copied to clipboard!', 'success');
         }
         
+        
+        // Open video quiz in new tab
+        function openVideoQuiz() {
+            const videoId = document.getElementById('existingVideoSelect').value;
+            if (!videoId) {
+                showNotification('Please select a video first', 'error');
+                return;
+            }
+            
+            // Open the quiz page with the video ID
+            const quizUrl = `index.html?video=${videoId}`;
+            window.open(quizUrl, '_blank');
+        }
         
         // Show notification
         function showNotification(message, type = 'info') {

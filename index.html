@@ -806,7 +806,10 @@
                 case 'drag_drop':
                     return question.pairs.map(pair => `${pair.left} → ${pair.right}`).join(', ');
                 case 'ordering':
-                    return question.correct_order.map(index => question.items[index]).join(' → ');
+                    if (question.correct_order && question.items) {
+                        return question.correct_order.map(index => question.items[index]).join(' → ');
+                    }
+                    return 'N/A';
                 default:
                     return 'N/A';
             }
@@ -910,11 +913,7 @@
                 saveQuizData(currentVideoData ? currentVideoData.id : extractVideoId(document.getElementById('videoUrl').value));
             } else {
                 if (attempts >= maxAttempts) {
-                    feedback.textContent = `Incorrect. The correct answer was: ${
-                        currentQuestion.type === 'multiple_choice' 
-                            ? currentQuestion.options[currentQuestion.correct]
-                            : currentQuestion.answer
-                    }`;
+                    feedback.textContent = `Incorrect. The correct answer was: ${formatCorrectAnswer(currentQuestion)}`;
                     feedback.className = 'feedback incorrect';
                     document.getElementById('submitBtn').classList.add('hidden');
                     document.getElementById('continueBtn').classList.remove('hidden');
